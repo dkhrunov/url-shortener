@@ -38,10 +38,13 @@ func main() {
 	log.Info("starting url-shortener", slog.String("env", cfg.Env))
 	log.Debug("debug messages are enabled")
 
+	// Setup storage
+	storage := newStorage(cfg)
+
 	// The HTTP Server
 	server := &http.Server{
 		Addr:         cfg.Address,
-		Handler:      newRouter(cfg),
+		Handler:      newRouter(cfg, storage),
 		ReadTimeout:  cfg.HTTPServer.Timeout,
 		WriteTimeout: cfg.HTTPServer.Timeout,
 		IdleTimeout:  cfg.HTTPServer.IdleTimeout,
@@ -115,7 +118,7 @@ func newSlogpretty() *slog.Logger {
 	return slog.New(handler)
 }
 
-func newRouter(cfg *config.Config) *chi.Mux {
+func newRouter(cfg *config.Config, storage *sqlite.Sqlite) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -123,12 +126,16 @@ func newRouter(cfg *config.Config) *chi.Mux {
 	r.Use(middleware.URLFormat)
 	r.Use(http_middleware.Logger)
 
-	// Setup storage
-	storage := newStorage(cfg)
-
 	r.Get("/{alias}", redirect.New(storage))
-	r.Post("/url", save.New(storage))
-	r.Delete("/url/{alias}", delete.New(storage))
+
+	r.Route("/url", func(r chi.Router) {
+		r.Use(middleware.BasicAuth("url-shortener", map[string]string{
+			cfg.HTTPServer.User: cfg.HTTPServer.Password,
+		}))
+
+		r.Post("/", save.New(storage))
+		r.Delete("/{alias}", delete.New(storage))
+	})
 
 	return r
 }

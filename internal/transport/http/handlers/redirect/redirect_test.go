@@ -13,6 +13,7 @@ import (
 	"github.com/dkhrunov/url-shortener/internal/transport/http/handlers/redirect"
 	"github.com/dkhrunov/url-shortener/internal/transport/http/handlers/redirect/mocks"
 	"github.com/go-chi/chi/v5"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -86,12 +87,12 @@ func TestRedirectHandler(t *testing.T) {
 
 				require.NoError(t, json.Unmarshal([]byte(body), &resp))
 
-				require.Equal(t, tc.respError, resp.Error)
+				assert.Equal(t, tc.respError, resp.Error)
 			}
 
-			require.Equal(t, tc.status, w.Code)
+			assert.Equal(t, tc.status, w.Code)
 
-			require.Equal(t, tc.url, w.Header().Get("Location"))
+			assert.Equal(t, tc.url, w.Header().Get("Location"))
 		})
 	}
 }
