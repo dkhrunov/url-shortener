@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/dkhrunov/url-shortener/internal/lib/logger/slog/handlers/slogdiscard"
 	"github.com/dkhrunov/url-shortener/internal/storage"
 	"github.com/dkhrunov/url-shortener/internal/transport/http/handlers/url/delete"
 	"github.com/dkhrunov/url-shortener/internal/transport/http/handlers/url/delete/mocks"
@@ -74,7 +73,7 @@ func TestDeleteHandler(t *testing.T) {
 
 			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
-			handler := delete.New(slogdiscard.NewDiscardLogger(), urlDeleterMock)
+			handler := delete.New(urlDeleterMock)
 			handler.ServeHTTP(w, r)
 
 			require.Equal(t, tc.status, w.Code)

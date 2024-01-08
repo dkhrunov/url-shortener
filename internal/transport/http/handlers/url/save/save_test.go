@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/dkhrunov/url-shortener/internal/lib/logger/slog/handlers/slogdiscard"
 	"github.com/dkhrunov/url-shortener/internal/storage"
 	"github.com/dkhrunov/url-shortener/internal/transport/http/handlers/url/save"
 	"github.com/dkhrunov/url-shortener/internal/transport/http/handlers/url/save/mocks"
@@ -86,7 +85,7 @@ func TestSaveHandler(t *testing.T) {
 					Once()
 			}
 
-			handler := save.New(slogdiscard.NewDiscardLogger(), urlSaverMock)
+			handler := save.New(urlSaverMock)
 
 			input := fmt.Sprintf(`{"url": "%s", "alias": "%s"}`, tc.url, tc.alias)
 

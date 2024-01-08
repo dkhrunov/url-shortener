@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/dkhrunov/url-shortener/internal/lib/logger/slog/handlers/slogdiscard"
 	"github.com/dkhrunov/url-shortener/internal/storage"
 	"github.com/dkhrunov/url-shortener/internal/transport/http/common/response"
 	"github.com/dkhrunov/url-shortener/internal/transport/http/handlers/redirect"
@@ -77,7 +76,7 @@ func TestRedirectHandler(t *testing.T) {
 
 			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
-			handler := redirect.New(slogdiscard.NewDiscardLogger(), urlGetterMock)
+			handler := redirect.New(urlGetterMock)
 			handler.ServeHTTP(w, r)
 
 			if tc.respError != "" {
